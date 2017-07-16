@@ -262,6 +262,11 @@ func TestParseAndCompare(t *testing.T) {
 		{"1.0~rc1~git123", EQUAL, "1.0~rc1~git123"},
 		{"1.0~rc1~git123", LESS, "1.0~rc1"},
 		{"1.0~rc1", GREATER, "1.0~rc1~git123"},
+
+		// Test epoch
+		{"1:1.0~rc1", GREATER, "0:1.0~rc1"},
+		{"1.0~rc1", LESS, "2:1.0~rc1"},
+		{"3:1.0~rc1", EQUAL, "3:1.0~rc1"},
 	}
 
 	for _, tc := range cases {
