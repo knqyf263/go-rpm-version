@@ -91,7 +91,7 @@ func (v1 Version) Compare(v2 Version) int {
 		return ret
 	}
 
-	//Compare debian_revision
+	//Compare release
 	return rpmvercmp(v1.release, v2.release)
 }
 
