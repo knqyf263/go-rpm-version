@@ -190,3 +190,18 @@ func rpmvercmp(a, b string) int {
 	}
 	return -1
 }
+
+// Version is a getter method that returns the version.
+func (v *Version) Version() string {
+	return v.version
+}
+
+// Release is a getter method that returns the release.
+func (v *Version) Release() string {
+	return v.release
+}
+
+// Epoch is a getter method that returns the epoch.
+func (v *Version) Epoch() int {
+	return v.epoch
+}
