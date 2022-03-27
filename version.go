@@ -16,9 +16,9 @@ var alphanumPattern = regexp.MustCompile("([a-zA-Z]+)|([0-9]+)|(~)")
 
 // Version represents a package version.
 type Version struct {
-	Epoch   int
-	Version string
-	Release string
+	epoch   int
+	version string
+	release string
 }
 
 // NewVersion returns a parsed version
@@ -28,15 +28,15 @@ func NewVersion(ver string) (version Version) {
 	// Parse epoch
 	splitted := strings.SplitN(ver, ":", 2)
 	if len(splitted) == 1 {
-		version.Epoch = 0
+		version.epoch = 0
 		ver = splitted[0]
 	} else {
 		// Trim left space
 		epoch := strings.TrimLeftFunc(splitted[0], unicode.IsSpace)
 
-		version.Epoch, err = strconv.Atoi(epoch)
+		version.epoch, err = strconv.Atoi(epoch)
 		if err != nil {
-			version.Epoch = 0
+			version.epoch = 0
 		}
 
 		ver = splitted[1]
@@ -45,11 +45,11 @@ func NewVersion(ver string) (version Version) {
 	// Parse version and release
 	index := strings.Index(ver, "-")
 	if index >= 0 {
-		version.Version = ver[:index]
-		version.Release = ver[index+1:]
+		version.version = ver[:index]
+		version.release = ver[index+1:]
 
 	} else {
-		version.Version = ver
+		version.version = ver
 	}
 
 	return version
@@ -79,32 +79,32 @@ func (v1 Version) Compare(v2 Version) int {
 	}
 
 	// Compare epochs
-	if v1.Epoch > v2.Epoch {
+	if v1.epoch > v2.epoch {
 		return 1
-	} else if v1.Epoch < v2.Epoch {
+	} else if v1.epoch < v2.epoch {
 		return -1
 	}
 
 	// Compare version
-	ret := rpmvercmp(v1.Version, v2.Version)
+	ret := rpmvercmp(v1.version, v2.version)
 	if ret != 0 {
 		return ret
 	}
 
 	//Compare release
-	return rpmvercmp(v1.Release, v2.Release)
+	return rpmvercmp(v1.release, v2.release)
 }
 
 // String returns the full version string
 func (v1 Version) String() string {
 	version := ""
-	if v1.Epoch > 0 {
-		version += fmt.Sprintf("%d:", v1.Epoch)
+	if v1.epoch > 0 {
+		version += fmt.Sprintf("%d:", v1.epoch)
 	}
-	version += v1.Version
+	version += v1.version
 
-	if v1.Release != "" {
-		version += fmt.Sprintf("-%s", v1.Release)
+	if v1.release != "" {
+		version += fmt.Sprintf("-%s", v1.release)
 
 	}
 	return version
