@@ -55,6 +55,11 @@ func NewVersion(ver string) (version Version) {
 	return version
 }
 
+// NewVersionWithValues returns defined version object
+func NewVersionWithValues(version, release string, epoch int) Version {
+	return Version{version: version, release: release, epoch: epoch}
+}
+
 // Equal returns whether this version is equal with another version.
 func (v1 *Version) Equal(v2 Version) bool {
 	return v1.Compare(v2) == 0
