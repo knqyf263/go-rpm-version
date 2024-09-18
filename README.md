@@ -25,10 +25,10 @@ $ go get github.com/knqyf263/go-rpm-version
 ## Version Parsing and Comparison
 
 ```
-import "github.com/knqyf263/go-rpm-version"
+import version "github.com/knqyf263/go-rpm-version"
 
-v1, err := version.NewVersion("2:6.0-1")
-v2, err := version.NewVersion("2:6.0-2.el6")
+v1 := version.NewVersion("2:6.0-1")
+v2 := version.NewVersion("2:6.0-2.el6")
 
 // Comparison example. There is also GreaterThan, Equal.
 if v1.LessThan(v2) {
@@ -42,8 +42,7 @@ if v1.LessThan(v2) {
 raw := []string{"5.3p1-112", "3.6.1p2-21.sel", "3.6.1p2-22", "5.3p1-105", "3.6.1p2-21"}
 vs := make([]version.Version, len(raw))
 for i, r := range raw {
-	v, _ := version.NewVersion(r)
-	vs[i] = v
+	vs[i] = version.NewVersion(r)
 }
 
 sort.Slice(vs, func(i, j int) bool {
