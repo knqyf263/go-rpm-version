@@ -263,6 +263,50 @@ func TestParseAndCompare(t *testing.T) {
 		{"1.0~rc1~git123", LESS, "1.0~rc1"},
 		{"1.0~rc1", GREATER, "1.0~rc1~git123"},
 
+		// Basic testcases for caret sorting
+		{"1.0^", EQUAL, "1.0^"},
+		{"1.0^", GREATER, "1.0"},
+		{"1.0", LESS, "1.0^"},
+		{"1.0^git1", EQUAL, "1.0^git1"},
+		{"1.0^git1", GREATER, "1.0"},
+		{"1.0", LESS, "1.0^git1"},
+		{"1.0^git1", LESS, "1.0^git2"},
+		{"1.0^git2", GREATER, "1.0^git1"},
+		{"1.0^git1", LESS, "1.01"},
+		{"1.01", GREATER, "1.0^git1"},
+		{"1.0^20160101", EQUAL, "1.0^20160101"},
+		{"1.0^20160101", LESS, "1.0.1"},
+		{"1.0.1", GREATER, "1.0^20160101"},
+		{"1.0^20160101^git1", EQUAL, "1.0^20160101^git1"},
+		{"1.0^20160102", GREATER, "1.0^20160101^git1"},
+		{"1.0^20160101^git1", LESS, "1.0^20160102"},
+
+		// Basic testcases for tilde and caret sorting
+		{"1.0~rc1^git1", EQUAL, "1.0~rc1^git1"},
+		{"1.0~rc1^git1", GREATER, "1.0~rc1"},
+		{"1.0~rc1", LESS, "1.0~rc1^git1"},
+		{"1.0^git1~pre", EQUAL, "1.0^git1~pre"},
+		{"1.0^git1", GREATER, "1.0^git1~pre"},
+		{"1.0^git1~pre", LESS, "1.0^git1"},
+
+		// Tilde against caret. The upstream suite never compares the two
+		// directly, so these guard the order in which they are handled.
+		{"1.0^", GREATER, "1.0~"},
+		{"1.0~", LESS, "1.0^"},
+		{"1.0~rc1", LESS, "1.0^git1"},
+		{"1.0^git1", GREATER, "1.0~rc1"},
+
+		// Caret in the release part and next to an epoch
+		{"1.0-1^", GREATER, "1.0-1"},
+		{"1.0-1^git1", LESS, "1.0-1.1"},
+		{"1:1.0^git1", GREATER, "1:1.0"},
+
+		// Caret in degenerate positions
+		{"1.0^~", GREATER, "1.0"},
+		{"^1.0", LESS, "1.0"},
+		{"^", GREATER, ""},
+		{"1.0^^1", LESS, "1.0^1"},
+
 		// Test epoch
 		{"1:1.0~rc1", GREATER, "0:1.0~rc1"},
 		{"1.0~rc1", LESS, "2:1.0~rc1"},

@@ -10,9 +10,10 @@ import (
 	"unicode"
 )
 
-// alphanumPattern is a regular expression to match all sequences of numeric
-// characters or alphanumeric characters.
-var alphanumPattern = regexp.MustCompile("([a-zA-Z]+)|([0-9]+)|(~)")
+// alphanumPattern is a regular expression to match all sequences of alphabetic
+// or numeric characters, as well as the tilde and the caret,
+// which are separators with a special meaning in RPM version comparison.
+var alphanumPattern = regexp.MustCompile(`([a-zA-Z]+)|([0-9]+)|([~^])`)
 
 // Version represents a package version.
 type Version struct {
@@ -110,11 +111,11 @@ func (v1 Version) String() string {
 	return version
 }
 
-// rpmcmpver compares two version or release strings.
-// Lifted from https://github.com/cavaliercoder/go-rpm/blob/master/version.go
+// rpmvercmp compares two version or release strings.
+// Lifted from https://github.com/cavaliergopher/rpm/blob/main/version.go
 //
 // For the original C implementation, see:
-// https://github.com/rpm-software-management/rpm/blob/master/lib/rpmvercmp.c#L16
+// https://github.com/rpm-software-management/rpm/blob/master/rpmio/rpmvercmp.cc
 func rpmvercmp(a, b string) int {
 	// shortcut for equality
 	if a == b {
@@ -137,6 +138,22 @@ func rpmvercmp(a, b string) int {
 				return 1
 			}
 			if []rune(b)[0] != '~' {
+				return -1
+			}
+		}
+
+		// compare carets. The concept is the same as the tilde, except that
+		// a caret sorts after the base version instead of before it:
+		// 1.0~rc1 < 1.0 < 1.0^git1 < 1.0.1
+		// The loop walks the common segments only, so both versions always
+		// have a segment here, e.g. "^" against "1" in 1.0^git1 vs 1.0.1.
+		// The case where one of them runs out of segments, e.g. 1.0 vs 1.0^,
+		// is left to the "most segments wins" rule at the end of this function.
+		if []rune(a)[0] == '^' || []rune(b)[0] == '^' {
+			if []rune(a)[0] != '^' {
+				return 1
+			}
+			if []rune(b)[0] != '^' {
 				return -1
 			}
 		}
