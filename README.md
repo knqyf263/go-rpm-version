@@ -10,7 +10,7 @@ A Go library for parsing rpm package versions
 go-rpm-version is a library for parsing and comparing rpm versions
 
 For the original C implementation, see:
-https://github.com/rpm-software-management/rpm/blob/master/lib/rpmvercmp.c#L16
+https://github.com/rpm-software-management/rpm/blob/master/rpmio/rpmvercmp.cc
 
 OS: RedHat/CentOS
 
