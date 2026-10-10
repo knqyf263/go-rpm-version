@@ -20,14 +20,16 @@ func TestNewVersion(t *testing.T) {
 		{"1:0", Version{1, "0", ""}},
 		{"5:1", Version{5, "1", ""}},
 		// Test multiple hyphens
-		{"0:0-0-0", Version{0, "0", "0-0"}},
-		{"0:0-0-0-0", Version{0, "0", "0-0-0"}},
+		{"0:0-0-0", Version{0, "0-0", "0"}},
+		{"0:0-0-0-0", Version{0, "0-0-0", "0"}},
+		{"1.0-1-2", Version{0, "1.0-1", "2"}},
+		{"1.0-1-2-3", Version{0, "1.0-1-2", "3"}},
 		// Test multiple colons
 		{"0:0:0-0", Version{0, "0:0", "0"}},
 		{"0:0:0:0-0", Version{0, "0:0:0", "0"}},
 		// Test multiple hyphens and colons
-		{"0:0:0-0-0", Version{0, "0:0", "0-0"}},
-		{"0:0-0:0-0", Version{0, "0", "0:0-0"}},
+		{"0:0:0-0-0", Version{0, "0:0-0", "0"}},
+		{"0:0-0:0-0", Version{0, "0-0:0", "0"}},
 		// Test version with leading and trailing spaces
 		{"  	0:0-1", Version{0, "0", "1"}},
 		{"0:0-1  	", Version{0, "0", "1  	"}},
@@ -311,6 +313,15 @@ func TestParseAndCompare(t *testing.T) {
 		{"1:1.0~rc1", GREATER, "0:1.0~rc1"},
 		{"1.0~rc1", LESS, "2:1.0~rc1"},
 		{"3:1.0~rc1", EQUAL, "3:1.0~rc1"},
+
+		// Test multi-hyphen version strings
+		{"1.0-1-2", GREATER, "1.0-2"},
+		{"1.0-2", LESS, "1.0-1-2"},
+		{"1.0-1-2", EQUAL, "1.0-1-2"},
+		{"1.0-1-2", GREATER, "1.0-1-1"},
+		{"1.0-1-1", LESS, "1.0-1-2"},
+		{"1.0-2-1", GREATER, "1.0-1-2"},
+		{"1.0-1-2", LESS, "1.0-2-1"},
 	}
 
 	for _, tc := range cases {
@@ -321,5 +332,34 @@ func TestParseAndCompare(t *testing.T) {
 			t.Errorf("v1: %s\nv2: %s\nexpected: %v\nactual: %v",
 				tc.v1, tc.v2, tc.expected, actual)
 		}
+	}
+}
+
+func TestMultiHyphenVersion(t *testing.T) {
+	v1 := NewVersion("1.0-1-2")
+	if v1.Version() != "1.0-1" {
+		t.Errorf("expected version 1.0-1, got %s", v1.Version())
+	}
+	if v1.Release() != "2" {
+		t.Errorf("expected release 2, got %s", v1.Release())
+	}
+
+	v2 := NewVersion("1.0-2")
+	if v1.Compare(v2) <= 0 {
+		t.Errorf("expected 1.0-1-2 to compare greater than 1.0-2, got %d", v1.Compare(v2))
+	}
+	if v2.Compare(v1) >= 0 {
+		t.Errorf("expected 1.0-2 to compare less than 1.0-1-2, got %d", v2.Compare(v1))
+	}
+
+	v3 := NewVersion("1.0-1-2-3")
+	if v3.Version() != "1.0-1-2" {
+		t.Errorf("expected version 1.0-1-2, got %s", v3.Version())
+	}
+	if v3.Release() != "3" {
+		t.Errorf("expected release 3, got %s", v3.Release())
+	}
+	if v3.String() != "1.0-1-2-3" {
+		t.Errorf("expected string 1.0-1-2-3, got %s", v3.String())
 	}
 }

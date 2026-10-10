@@ -44,7 +44,7 @@ func NewVersion(ver string) (version Version) {
 	}
 
 	// Parse version and release
-	index := strings.Index(ver, "-")
+	index := strings.LastIndex(ver, "-")
 	if index >= 0 {
 		version.version = ver[:index]
 		version.release = ver[index+1:]
